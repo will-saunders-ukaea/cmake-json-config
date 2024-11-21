@@ -1,0 +1,10 @@
+{
+    "preprocessor_defines" : {
+        "ABC_INT" : 128,
+        "ABC_STRING": "MARCO",
+        "ABC_SPEC_INT" : 48,
+        "ABC_SPEC_STRING" : "POLO"
+    }
+}
+
+

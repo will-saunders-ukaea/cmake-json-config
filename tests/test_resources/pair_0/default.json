@@ -1,0 +1,10 @@
+{
+    "preprocessor_defines" : {
+        "ABC_INT" : 32,
+        "ABC_STRING": "FOO",
+        "ABC_DEFAULT_INT" : 64,
+        "ABC_DEFAULT_STRING" : "BAR"
+    }
+}
+
+
