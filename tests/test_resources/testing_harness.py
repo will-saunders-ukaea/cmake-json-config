@@ -5,9 +5,7 @@ import shutil
 
 VERBOSE = False
 JSONCONFIG = "JSONConfig.cmake"
-TEST_RESOURCES_PATH = os.path.expanduser(
-    os.path.dirname(os.path.abspath(__file__))
-)
+TEST_RESOURCES_PATH = os.path.expanduser(os.path.dirname(os.path.abspath(__file__)))
 INTERFACE_FILE = os.path.join(TEST_RESOURCES_PATH, "..", "..", JSONCONFIG)
 EXAMPLE_FILE = os.path.join(
     TEST_RESOURCES_PATH, "..", "..", "examples", "CMakeLists.txt"
@@ -96,6 +94,7 @@ class CMakeRun:
 
         stdout_filename = os.path.join(tmp_dir, "cmake.stdout")
         stderr_filename = os.path.join(tmp_dir, "cmake.stderr")
+        error_code = True
         with open(stdout_filename, "w") as stdout_fh:
             with open(stderr_filename, "w") as stderr_fh:
                 try:
@@ -107,7 +106,7 @@ class CMakeRun:
                     )
                 except subprocess.CalledProcessError as e:
                     print(e)
-                    return False
+                    error_code = False
 
         if self.verbose:
             print("")
@@ -120,4 +119,4 @@ class CMakeRun:
             print("-" * 80)
             self._call_tree(tmp_dir)
 
-        return True
+        return error_code
