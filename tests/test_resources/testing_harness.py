@@ -39,7 +39,8 @@ def setup_test_directory(path: str, json_default: str, json_spec: str) -> None:
     assert os.path.exists(INTERFACE_FILE)
     assert os.path.exists(path)
     os.mkdir(os.path.join(path, "cmake"))
-    dst_path = os.path.join(path, "cmake", JSONCONFIG)
+    os.mkdir(os.path.join(path, "cmake", "cmake-json-config"))
+    dst_path = os.path.join(path, "cmake", "cmake-json-config", JSONCONFIG)
     shutil.copyfile(INTERFACE_FILE, dst_path)
     assert os.path.exists(dst_path)
     config_path = os.path.join(path, "config")
@@ -101,4 +102,7 @@ class CMakeRun:
             print(fh.read())
 
         print("-" * 80)
+
+        subprocess.check_call(["tree"], cwd=tmp_dir)
+
         return True
