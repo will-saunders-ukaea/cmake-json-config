@@ -3,6 +3,13 @@ project(JSONConfig VERSION 0.0.1)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-json-config/JSONConfig.cmake)
 
+cmake_path(SET DEFAULT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/config/default.json")
+cmake_path(SET SPEC_JSON "${CMAKE_CURRENT_SOURCE_DIR}/config/spec.json")
+
+message(STATUS "default_json: " ${DEFAULT_JSON})
+message(STATUS "spec_json: " ${SPEC_JSON})
+
+
 
 
 
