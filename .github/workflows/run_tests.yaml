@@ -20,4 +20,4 @@ jobs:
           sudo apt update
           sudo apt install -y cmake python3-pytest
           cd ./tests
-          /usr/bin/py.test -sv
+          python3 -m pytest -sv
