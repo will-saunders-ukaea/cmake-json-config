@@ -3,6 +3,7 @@ import os
 import subprocess
 import shutil
 import shlex
+import json
 
 VERBOSE = False
 JSONCONFIG = "JSONConfig.cmake"
@@ -73,19 +74,40 @@ def setup_test_directory(path: str, json_default: str, json_spec: str) -> None:
     assert os.path.exists(build_path)
 
 
+def get_cmake_cache(path: str) -> dict:
+    """
+    Get the CMakeCache.txt from path/build as a dict.
+
+    :param str path: Root of testing directory.
+    :returns: Dict containing values in CMake cache.
+    """
+    cmakecachetxt = os.path.join(path, "build", "CMakeCache.txt")
+    assert os.path.exists(cmakecachetxt)
+
+    cmake_cache = {}
+    with open(cmakecachetxt) as fh:
+        for line in fh:
+            line = line.strip()
+            if line.count("=") == 1:
+                key, value = line.split("=")
+                key = key.split(":")[0]
+                cmake_cache[key] = value
+    return cmake_cache
+
+
 class CMakeRun:
-    def __init__(self, json_default: str, json_spec: str):
+    def __init__(self, json_default: str, json_spec: str, cmake_args: str = ""):
         self.json_default = json_default
         self.json_spec = json_spec
         self.verbose = VERBOSE
         self.tree_exists = shutil.which("tree") is not None
-        self.cmd = ["cmake", ".."]
+        self.cmd = ["cmake"] + shlex.split(cmake_args) + [".."]
 
     def _call_tree(self, tmp_dir):
         if self.tree_exists:
             subprocess.check_call(["tree"], cwd=tmp_dir)
 
-    def __call__(self, cmake_args: str = "") -> bool:
+    def call_cmake(self) -> bool:
         tmp_dir_handle = tempfile.TemporaryDirectory()
         tmp_dir = tmp_dir_handle.name
         setup_test_directory(tmp_dir, self.json_default, self.json_spec)
@@ -100,7 +122,7 @@ class CMakeRun:
             with open(stderr_filename, "w") as stderr_fh:
                 try:
                     subprocess.check_call(
-                        self.cmd + shlex.split(cmake_args),
+                        self.cmd,
                         cwd=os.path.join(tmp_dir, "build"),
                         stdout=stdout_fh,
                         stderr=stderr_fh,
@@ -120,4 +142,34 @@ class CMakeRun:
             print("-" * 80)
             self._call_tree(tmp_dir)
 
-        return error_code
+        return error_code and self.test_cmake_cache(tmp_dir)
+
+    def test_cmake_cache(self, tmp_dir: str) -> bool:
+        cmake_cache = get_cmake_cache(tmp_dir)
+        default_config = json.loads(open(self.json_default).read())
+        spec_config = json.loads(open(self.json_spec).read())
+
+        default_cpp = default_config["preprocessor_defines"]
+        spec_cpp = spec_config["preprocessor_defines"]
+
+        # create the correct config as a python dict
+        config = {}
+        for key, value in default_cpp.items():
+            config[key] = value
+        for key, value in spec_cpp.items():
+            config[key] = value
+        for cx in self.cmd:
+            if cx.startswith("-D"):
+                cx = cx[2:]
+                key, value = cx.split("=")
+                config[key] = value
+
+        # compare each item with the cache version
+        for key, value in config.items():
+            if not key in cmake_cache.keys():
+                return False
+            to_test = cmake_cache[key]
+            if str(value) != str(to_test):
+                return False
+
+        return True
