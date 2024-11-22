@@ -1,18 +1,22 @@
-# TODO
+# Helper macro for internal use. This macro pushes key value pairs onto the
+# output lists if there is not an overriding value set on the command line.
 macro(JSON_CONFIG_PUSH_JSON_PREPROCESSOR TMP_KEY TMP_VALUE)
   # Allow command line overrides
-  if(DEFINED ${TMP_KEY})
+  if(DEFINED JSON_CONFIG_CPP_${TMP_KEY})
     message(STATUS "Command line preprocessor definition: " ${TMP_KEY} " = "
-                   ${${TMP_KEY}})
+                   ${JSON_CONFIG_CPP_${TMP_KEY}})
     list(APPEND JSON_CONFIG_PREPROCESSOR_NAMES ${TMP_KEY})
-    list(APPEND JSON_CONFIG_PREPROCESSOR_VALUES ${${TMP_KEY}})
+    list(APPEND JSON_CONFIG_PREPROCESSOR_VALUES ${JSON_CONFIG_CPP_${TMP_KEY}})
   else()
     list(APPEND JSON_CONFIG_PREPROCESSOR_NAMES ${TMP_KEY})
     list(APPEND JSON_CONFIG_PREPROCESSOR_VALUES ${TMP_VALUE})
   endif()
 endmacro()
 
-# TODO
+# This function takes two file names as arguments. The first argument is the
+# JSON file containing the default preprocessor defines. The second file
+# contains the specialisation preprocessor defines. On return the variables
+# JSON_CONFIG_PREPROCESSOR_NAMES and JSON_CONFIG_PREPROCESSOR_VALUES are set.
 function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
   message(STATUS "-- JSON CONFIG START --")
   message(STATUS "DEFAULT_JSON: " ${DEFAULT_JSON})
@@ -83,7 +87,8 @@ function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
   message(STATUS "--  JSON CONFIG END  --")
 endfunction()
 
-# TODO
+# This function writes the variables in the two lists to the cmake cache for
+# testing purposes.
 function(JSON_CONFIG_WRITE_TO_CMAKE_CACHE)
   list(LENGTH JSON_CONFIG_PREPROCESSOR_NAMES NUM_NAMES)
   math(EXPR RANGE_NAMES "${NUM_NAMES}-1")

@@ -96,7 +96,20 @@ def get_cmake_cache(path: str) -> dict:
 
 
 class CMakeRun:
+    """
+    Class to setup, run and test the cmake functionality.
+    """
+
     def __init__(self, json_default: str, json_spec: str, cmake_args: str = ""):
+        """
+        Create tester.
+
+        :param str json_default: Path to JSON file containing default
+        preprocessor definitions.
+        :param str json_spec: Path to JSON file containing specialisation
+        preprocessor definitions.
+        :param str cmake_args: Override a definition using the command line.
+        """
         self.json_default = json_default
         self.json_spec = json_spec
         self.verbose = VERBOSE
@@ -108,6 +121,13 @@ class CMakeRun:
             subprocess.check_call(["tree"], cwd=tmp_dir)
 
     def call_cmake(self) -> bool:
+        """
+        Run cmake and test that the values in the cache match the expected
+        values from the JSON files.
+
+        :returns: True if self testing passes.
+        """
+
         tmp_dir_handle = tempfile.TemporaryDirectory()
         tmp_dir = tmp_dir_handle.name
         setup_test_directory(tmp_dir, self.json_default, self.json_spec)
@@ -159,10 +179,17 @@ class CMakeRun:
         for key, value in spec_cpp.items():
             config[key] = value
         for cx in self.cmd:
-            if cx.startswith("-D"):
-                cx = cx[2:]
+            if cx.startswith("-DJSON_CONFIG_CPP_"):
+                cx = cx[18:]
                 key, value = cx.split("=")
                 config[key] = value
+
+        print("-----------------------")
+        for key, value in config.items():
+            print(key, value)
+        print("-----------------------")
+        for key, value in cmake_cache.items():
+            print(key, value)
 
         # compare each item with the cache version
         for key, value in config.items():

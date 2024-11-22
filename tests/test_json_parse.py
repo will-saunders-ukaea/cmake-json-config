@@ -15,10 +15,15 @@ def test_pair_0():
 
 
 def test_pair_0_cmdline_default_override():
-    cmake_run = CMakeRun(*get_test_paths("pair_0"), "-DABC_DEFAULT_STRING=XYZ")
+    cmake_run = CMakeRun(
+        *get_test_paths("pair_0"), "-DJSON_CONFIG_CPP_ABC_DEFAULT_STRING=456"
+    )
     assert cmake_run.call_cmake()
 
 
 def test_pair_0_cmdline_spec_override():
-    cmake_run = CMakeRun(*get_test_paths("pair_0"), "-DABC_SPEC_STRING=XYZ")
+    cmake_run = CMakeRun(
+        *get_test_paths("pair_0"), "-DJSON_CONFIG_CPP_ABC_SPEC_STRING=456"
+    )
+    cmake_run.verbose = True
     assert cmake_run.call_cmake()
