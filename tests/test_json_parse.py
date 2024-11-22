@@ -25,5 +25,7 @@ def test_pair_0_cmdline_spec_override():
     cmake_run = CMakeRun(
         *get_test_paths("pair_0"), "-DJSON_CONFIG_CPP_ABC_SPEC_STRING=456"
     )
-    cmake_run.verbose = True
     assert cmake_run.call_cmake()
+
+
+# TODO add interface/test for when specialisation json doesn't exist

@@ -184,13 +184,6 @@ class CMakeRun:
                 key, value = cx.split("=")
                 config[key] = value
 
-        print("-----------------------")
-        for key, value in config.items():
-            print(key, value)
-        print("-----------------------")
-        for key, value in cmake_cache.items():
-            print(key, value)
-
         # compare each item with the cache version
         for key, value in config.items():
             if not key in cmake_cache.keys():

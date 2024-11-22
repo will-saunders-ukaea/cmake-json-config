@@ -18,12 +18,8 @@ endmacro()
 # contains the specialisation preprocessor defines. On return the variables
 # JSON_CONFIG_PREPROCESSOR_NAMES and JSON_CONFIG_PREPROCESSOR_VALUES are set.
 function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
-  message(STATUS "-- JSON CONFIG START --")
-  message(STATUS "DEFAULT_JSON: " ${DEFAULT_JSON})
-  message(STATUS "SPEC_JSON: " ${SPEC_JSON})
-
-  file(READ ${DEFAULT_JSON} DEFAULT_JSON_STRING)
-  file(READ ${SPEC_JSON} SPEC_JSON_STRING)
+  message(STATUS "JSONConfig defaults: " ${DEFAULT_JSON})
+  message(STATUS "JSONConfig specialisations: " ${SPEC_JSON})
 
   set(JSON_CONFIG_PREPROCESSOR_NAMES
       ""
@@ -32,23 +28,29 @@ function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
       ""
       PARENT_SCOPE)
 
-  # read the specialised key-value pairs
-  string(JSON NUM_SPEC_PREPROCESSOR_DEFINES LENGTH ${SPEC_JSON_STRING}
-                                                   "preprocessor_defines")
-  string(JSON SPEC_PREPROCESSOR_DEFINES GET ${SPEC_JSON_STRING}
-         "preprocessor_defines")
-  # turn the number of entries into a loop bound
-  math(EXPR NUM_SPEC_PREPROCESSOR_DEFINES "${NUM_SPEC_PREPROCESSOR_DEFINES}-1")
-  foreach(INDEX RANGE 0 ${NUM_SPEC_PREPROCESSOR_DEFINES})
-    # turn the index into a key for the dictonary
-    string(JSON TMP_KEY MEMBER ${SPEC_PREPROCESSOR_DEFINES} ${INDEX})
-    string(JSON TMP_VALUE GET ${SPEC_PREPROCESSOR_DEFINES} ${TMP_KEY})
-    message(STATUS "Parsed specialised preprocessor definition: " ${TMP_KEY}
-                   " = " ${TMP_VALUE})
-    json_config_push_json_preprocessor(${TMP_KEY} ${TMP_VALUE})
-  endforeach()
+  if(DEFINED SPEC_JSON)
+    file(READ ${SPEC_JSON} SPEC_JSON_STRING)
+
+    # read the specialised key-value pairs
+    string(JSON NUM_SPEC_PREPROCESSOR_DEFINES LENGTH ${SPEC_JSON_STRING}
+                                                     "preprocessor_defines")
+    string(JSON SPEC_PREPROCESSOR_DEFINES GET ${SPEC_JSON_STRING}
+           "preprocessor_defines")
+    # turn the number of entries into a loop bound
+    math(EXPR NUM_SPEC_PREPROCESSOR_DEFINES
+         "${NUM_SPEC_PREPROCESSOR_DEFINES}-1")
+    foreach(INDEX RANGE 0 ${NUM_SPEC_PREPROCESSOR_DEFINES})
+      # turn the index into a key for the dictonary
+      string(JSON TMP_KEY MEMBER ${SPEC_PREPROCESSOR_DEFINES} ${INDEX})
+      string(JSON TMP_VALUE GET ${SPEC_PREPROCESSOR_DEFINES} ${TMP_KEY})
+      message(STATUS "Parsed specialised preprocessor definition: " ${TMP_KEY}
+                     " = " ${TMP_VALUE})
+      json_config_push_json_preprocessor(${TMP_KEY} ${TMP_VALUE})
+    endforeach()
+  endif()
 
   # Read the default key, value pairs
+  file(READ ${DEFAULT_JSON} DEFAULT_JSON_STRING)
   string(JSON NUM_DEFAULT_PREPROCESSOR_DEFINES LENGTH ${DEFAULT_JSON_STRING}
                                                       "preprocessor_defines")
   string(JSON DEFAULT_PREPROCESSOR_DEFINES GET ${DEFAULT_JSON_STRING}
@@ -84,7 +86,6 @@ function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
   set(JSON_CONFIG_PREPROCESSOR_VALUES
       ${JSON_CONFIG_PREPROCESSOR_VALUES}
       PARENT_SCOPE)
-  message(STATUS "--  JSON CONFIG END  --")
 endfunction()
 
 # This function writes the variables in the two lists to the cmake cache for
