@@ -1,4 +1,18 @@
 # TODO
+macro(JSON_CONFIG_PUSH_JSON_PREPROCESSOR TMP_KEY TMP_VALUE)
+  # Allow command line overrides
+  if(DEFINED ${TMP_KEY})
+    message(STATUS "Command line preprocessor definition: " ${TMP_KEY} " = "
+                   ${${TMP_KEY}})
+    list(APPEND JSON_PREPROCESSOR_NAMES ${TMP_KEY})
+    list(APPEND JSON_PREPROCESSOR_VALUES ${${TMP_KEY}})
+  else()
+    list(APPEND JSON_PREPROCESSOR_NAMES ${TMP_KEY})
+    list(APPEND JSON_PREPROCESSOR_VALUES ${TMP_VALUE})
+  endif()
+endmacro()
+
+# TODO
 function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
   message(STATUS "-- JSON CONFIG START --")
   message(STATUS "DEFAULT_JSON: " ${DEFAULT_JSON})
@@ -23,8 +37,7 @@ function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
     string(JSON TMP_VALUE GET ${SPEC_PREPROCESSOR_DEFINES} ${TMP_KEY})
     message(STATUS "Parsed specialised preprocessor definition: " ${TMP_KEY}
                    " = " ${TMP_VALUE})
-    list(APPEND JSON_PREPROCESSOR_NAMES ${TMP_KEY})
-    list(APPEND JSON_PREPROCESSOR_VALUES ${TMP_VALUE})
+    json_config_push_json_preprocessor(${TMP_KEY} ${TMP_VALUE})
   endforeach()
 
   # Read the default key, value pairs
@@ -43,8 +56,7 @@ function(JSON_CONFIG_GET DEFAULT_JSON SPEC_JSON)
                    ${TMP_VALUE})
 
     if(NOT ${TMP_KEY} IN_LIST JSON_PREPROCESSOR_NAMES)
-      list(APPEND JSON_PREPROCESSOR_NAMES ${TMP_KEY})
-      list(APPEND JSON_PREPROCESSOR_VALUES ${TMP_VALUE})
+      json_config_push_json_preprocessor(${TMP_KEY} ${TMP_VALUE})
     endif()
   endforeach()
 

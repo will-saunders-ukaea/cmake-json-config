@@ -13,3 +13,15 @@ def test_pair_0():
     cmake_run = CMakeRun(*get_test_paths("pair_0"))
     cmake_run.verbose = True
     assert cmake_run()
+
+
+def test_pair_0_cmdline_default_override():
+    cmake_run = CMakeRun(*get_test_paths("pair_0"))
+    cmake_run.verbose = True
+    assert cmake_run("-DABC_DEFAULT_STRING=XYZ")
+
+
+def test_pair_0_cmdline_spec_override():
+    cmake_run = CMakeRun(*get_test_paths("pair_0"))
+    cmake_run.verbose = True
+    assert cmake_run("-DABC_SPEC_STRING=XYZ")

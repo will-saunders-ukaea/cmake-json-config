@@ -2,6 +2,7 @@ import tempfile
 import os
 import subprocess
 import shutil
+import shlex
 
 VERBOSE = False
 JSONCONFIG = "JSONConfig.cmake"
@@ -84,7 +85,7 @@ class CMakeRun:
         if self.tree_exists:
             subprocess.check_call(["tree"], cwd=tmp_dir)
 
-    def __call__(self) -> bool:
+    def __call__(self, cmake_args: str = "") -> bool:
         tmp_dir_handle = tempfile.TemporaryDirectory()
         tmp_dir = tmp_dir_handle.name
         setup_test_directory(tmp_dir, self.json_default, self.json_spec)
@@ -99,7 +100,7 @@ class CMakeRun:
             with open(stderr_filename, "w") as stderr_fh:
                 try:
                     subprocess.check_call(
-                        self.cmd,
+                        self.cmd + shlex.split(cmake_args),
                         cwd=os.path.join(tmp_dir, "build"),
                         stdout=stdout_fh,
                         stderr=stderr_fh,
