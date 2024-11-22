@@ -31,7 +31,6 @@ Both default and specialisation values are set from the JSON files as follows:
         "ABC_DEFAULT_STRING" : "BAR"
     }
 }
-
 ```
 
 Values can also be overridden on the cmake command line by adding the prefix `JSON_CONFIG_CPP_` to a definition. Note that `JSON_CONFIG_` specifies a variable in this utility and `CPP_` denotes a C preprocessor definition.
